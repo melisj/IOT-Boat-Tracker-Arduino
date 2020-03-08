@@ -9,7 +9,7 @@
 #include "Sound_Controller.h"
 #include "Led_Controller.h"
 
-const int secondDelayForWeather = 20;
+const int secondDelayForWeather = 60;
 
 // Button Setup
 #define BUTTON_PIN D1
@@ -44,34 +44,38 @@ void setup() {
   WiFi.begin(networkName, password);
  
   while (WiFi.status() != WL_CONNECTED) {
-     delay(1000);
+     LoopThroughLeds(50, 0, 0, 255);
+     delay(200);
      Serial.println("connecting");
   }
+
+  BlinkLight(400, 0, 0, 255);
+  GoodReplySound();
 }
 
 void loop() {
   // Check if the weather need to be requested
    if(CheckTimer(secondDelayForWeather)) {
-    if(WiFi.status()== WL_CONNECTED){
-      Serial.println("yeah");
-      GetWeatherInfo(DoRequestFor(weatherUrl));
-    } 
-    else
-      Serial.println("Connection has been lost");   
+      if(WiFi.status()== WL_CONNECTED){
+          Serial.println("yeah");
+          GetWeatherInfo(DoRequestFor(weatherUrl));
+      } 
+      else
+          Serial.println("Connection has been lost");   
    }
    
    // Check for button input
-  if (digitalRead(BUTTON_PIN) == LOW)
-  {
-    // Calibrate the location of the boat here
-    if(!buttonPressed) {
-      CalibrateBoatHere(DoRequestFor(calibrateUrl));
-      delay(100); 
-    }
-    buttonPressed = true;
-  }
-  else 
-    buttonPressed = false;
+   if (digitalRead(BUTTON_PIN) == LOW)
+   {
+      // Calibrate the location of the boat here
+      if(!buttonPressed) {
+        CalibrateBoatHere(DoRequestFor(calibrateUrl));
+        delay(100); 
+      }
+      buttonPressed = true;
+   }
+   else 
+      buttonPressed = false;
   
   // Reset the timer at the end of the loop
   ResetTimer();
@@ -79,7 +83,7 @@ void loop() {
 
 // Request data from the server
 int DoRequestFor(String url) {
-  SetLedsColor(255,255,0);
+  SetLedsColor(0,0,255);
     
   HTTPClient http;
   http.begin(url); 
@@ -90,8 +94,10 @@ int DoRequestFor(String url) {
     deserializeJson(json, http.getString());
 
      // Light green when it went correct, else blink red
-     if(httpCode > 200 && httpCode < 299)
+     if(httpCode > 200 && httpCode < 299){
         SetLedsColor(0,255,0);
+        GoodReplySound();
+     }
      else
         BlinkLightTimes(200, 255, 0, 0, 3);
   }
@@ -106,6 +112,9 @@ int DoRequestFor(String url) {
 void GetWeatherInfo(int httpCode) {
   if(httpCode > 200 && httpCode < 299) {
     int stateArray[LED_COUNT] = { json["lightRain"], json["heavyRain"], json["heavyWind"] };
+
+    // Turn on the correct leds
+    delay(500);
     TurnOnWeatherLed(stateArray);
   }
   else{

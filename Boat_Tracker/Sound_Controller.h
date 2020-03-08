@@ -22,9 +22,13 @@ void MakeSound(int delayMiliseconds, float seconds){
   }
 }
 
+void GoodReplySound(){
+  MakeSound(2, 0.2);
+  delay(100);
+  MakeSound(1, 0.1);
+}
+
 void AudioSetup(){
   pinMode(BUZZER_PIN_1, OUTPUT);  
   pinMode(BUZZER_PIN_2, OUTPUT);  
-
-  MakeSound(4, 0.2);
 }
