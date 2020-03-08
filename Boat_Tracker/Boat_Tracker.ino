@@ -133,4 +133,7 @@ void CalibrateBoatHere(int httpCode) {
   }
   else 
    Serial.println("Calibration Failed");
+
+  // Get the weather info again after calibrating
+   GetWeatherInfo(DoRequestFor(weatherUrl));
 }
