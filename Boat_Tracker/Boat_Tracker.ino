@@ -5,12 +5,15 @@
 #include <ESP8266HTTPClient.h>
 #include <Adafruit_NeoPixel.h>
 
-#include "Led_Controller.h"
 #include "Timer.h"
+#include "Sound_Controller.h"
+#include "Led_Controller.h"
+
+const int secondDelayForWeather = 20;
 
 // Button Setup
 #define BUTTON_PIN D1
-bool buttonPressed;
+bool buttonPressed = false;
 
 // Setup the networking side
 const String networkName = "TELE2-A7E7F3_2.4G";
@@ -20,20 +23,16 @@ const String password = "36D49969D4C3";
 const String domainName = "boattracker.duckdns.org";
 const String ipBackupName = "[backup ip]"; 
 
-// Connection for the weather API
+// Connection for the weather API and calibration of the position
 const String weatherUrl = "http://" + domainName + "/arduino/weather";
 const String calibrateUrl = "http://" + domainName + "/arduino/calibrate";
 
-// Weather delay time (5 min)
-const int secondDelayForWeather = 5 * 60;
-
 DynamicJsonDocument json(1024); 
-
-// Check the API every couple of ms
-const int timeStep = 1000;
 
 void setup() {
   Serial.begin(9600);
+  // Setup the sound device
+  AudioSetup();
 
   // Setup all the pins
   pinMode(BUTTON_PIN, INPUT_PULLUP);  
@@ -45,67 +44,84 @@ void setup() {
   WiFi.begin(networkName, password);
  
   while (WiFi.status() != WL_CONNECTED) {
-     delay(500);
+     delay(1000);
      Serial.println("connecting");
   }
 }
 
 void loop() {
-  
-  if(CheckTimer(secondDelayForWeather)) {
+  // Check if the weather need to be requested
+   if(CheckTimer(secondDelayForWeather)) {
     if(WiFi.status()== WL_CONNECTED){
       Serial.println("yeah");
-      GetWeatherInfo();
+      GetWeatherInfo(DoRequestFor(weatherUrl));
     } 
     else
       Serial.println("Connection has been lost");   
-  }
-  
-  // Check for button input
+   }
+   
+   // Check for button input
   if (digitalRead(BUTTON_PIN) == LOW)
   {
-    if(!buttonPressed)
-      CalibrateBoatHere();
+    // Calibrate the location of the boat here
+    if(!buttonPressed) {
+      CalibrateBoatHere(DoRequestFor(calibrateUrl));
+      delay(100); 
+    }
     buttonPressed = true;
   }
   else 
     buttonPressed = false;
-
+  
   // Reset the timer at the end of the loop
   ResetTimer();
 }
 
-void GetWeatherInfo() {
-   // Send the request
-    HTTPClient http;
-    http.begin(weatherUrl); 
-    int httpCode = http.GET(); 
-
-    Serial.println(httpCode);
-
-    // Recieve the request
-    if (httpCode > 0) {
-      deserializeJson(json, http.getString()); // Get the request response payload
-
-      int stateArray[LED_COUNT] = { json["lightRain"], json["heavyRain"], json["heavyWind"] };
-      TurnOnWeatherLed(stateArray);
-    }
+// Request data from the server
+int DoRequestFor(String url) {
+  SetLedsColor(255,255,0);
     
-    http.end();
-}
-
-void CalibrateBoatHere() {
-  // Send the request
   HTTPClient http;
-  http.begin(calibrateUrl); 
+  http.begin(url); 
   int httpCode = http.GET(); 
-
   Serial.println(httpCode);
 
-  // Recieve the request
-  if (httpCode > 0) {
-    Serial.println("Request succeeded");
+  if(httpCode > 0) {
+    deserializeJson(json, http.getString());
+
+     // Light green when it went correct, else blink red
+     if(httpCode > 200 && httpCode < 299)
+        SetLedsColor(0,255,0);
+     else
+        BlinkLightTimes(200, 255, 0, 0, 3);
   }
-  
+
   http.end();
+
+  return httpCode;
+}
+
+
+// Get the data from the weather request
+void GetWeatherInfo(int httpCode) {
+  if(httpCode > 200 && httpCode < 299) {
+    int stateArray[LED_COUNT] = { json["lightRain"], json["heavyRain"], json["heavyWind"] };
+    TurnOnWeatherLed(stateArray);
+  }
+  else{
+    Serial.println("Weather request failed");
+  }
+}
+
+// Check if the request succeeded
+void CalibrateBoatHere(int httpCode) {
+  if(httpCode > 200 && httpCode < 299) {
+    Serial.println("Calibration Succeeded");
+
+    // turn of the leds
+    delay(500);
+    SetLedsColor(0,0,0);
+  }
+  else 
+   Serial.println("Calibration Failed");
 }

@@ -7,8 +7,20 @@ void SetLedsColor(int r, int g, int b){
   for(int i = 0; i < LED_COUNT; i++) {
      strip.setPixelColor(i, r,g,b);
   }
-
   strip.show();
+}
+
+void BlinkLight(int delayTime, int r, int g, int b){
+  SetLedsColor(r,g,b);
+  delay(delayTime);
+  SetLedsColor(0,0,0);
+  delay(delayTime);
+}
+
+void BlinkLightTimes(int delayTime, int r, int g, int b, int amount) {
+  for(int i = 0; i < amount; i++) {
+    BlinkLight(delayTime, r, g, b);
+  }
 }
 
 void LedStartUpSequence(){
@@ -24,11 +36,7 @@ void LedStartUpSequence(){
   }
   
   // Blink lights
-  for(int i = 0; i < 5; i++) {
-    SetLedsColor(0,255,0);
-    delay(1000);
-    SetLedsColor(0,0,0);
-  }
+  BlinkLightTimes(250, 0, 255, 0, 4);
 }
 
 // Change the state of the led's by recieving data from the weather API
