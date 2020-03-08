@@ -94,7 +94,7 @@ int DoRequestFor(String url) {
     deserializeJson(json, http.getString());
 
      // Light green when it went correct, else blink red
-     if(httpCode > 200 && httpCode < 299){
+     if(httpCode >= 200 && httpCode < 299){
         SetLedsColor(0,255,0);
         GoodReplySound();
      }
@@ -110,7 +110,7 @@ int DoRequestFor(String url) {
 
 // Get the data from the weather request
 void GetWeatherInfo(int httpCode) {
-  if(httpCode > 200 && httpCode < 299) {
+  if(httpCode >= 200 && httpCode < 299) {
     int stateArray[LED_COUNT] = { json["lightRain"], json["heavyRain"], json["heavyWind"] };
 
     // Turn on the correct leds
