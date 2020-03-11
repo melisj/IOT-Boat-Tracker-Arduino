@@ -1,18 +1,20 @@
 // The led will display heavy winds, the 2e will display heavy rain, the 3e will turn on when a thunderstorm is coming
+// Hardcoded boat
+const String BOAT_NAME = "viermineen";
 
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <Adafruit_NeoPixel.h>
 
+DynamicJsonDocument json(1024); 
+
 #include "Timer.h"
 #include "Sound_Controller.h"
 #include "Led_Controller.h"
+#include "Wifi_Connection.h"
 
 const int secondDelayForWeather = 60;
-
-// Hardcoded boat
-const String BOAT_NAME = "viermineen";
 
 // Button Setup
 #define BUTTON_PIN D1
@@ -29,10 +31,9 @@ const String domainName = "boattracker.duckdns.org";
 const String ipBackupName = "[backup ip]"; 
 
 // Connection for the weather API and calibration of the position
-const String weatherUrl = "http://" + domainName + "/arduino/weather";
+const String weatherUrl = "http://" + domainName + "/arduino/weather?boat_name=" + BOAT_NAME;
 const String calibrateUrl = "http://" + domainName + "/arduino/calibrate";
 
-DynamicJsonDocument json(1024); 
 
 void setup() {
   Serial.begin(9600);
@@ -62,7 +63,7 @@ void loop() {
    if(CheckTimer(secondDelayForWeather)) {
       if(WiFi.status()== WL_CONNECTED){
           Serial.println("yeah");
-          GetWeatherInfo(DoRequestFor(weatherUrl));
+          GetWeatherInfo(DoRequestFor(weatherUrl, true));
       } 
       else
           Serial.println("Connection has been lost");   
@@ -73,7 +74,7 @@ void loop() {
    {
       // Calibrate the location of the boat here
       if(!buttonPressed) {
-        CalibrateBoatHere(DoRequestFor(calibrateUrl));
+        CalibrateBoatHere(DoRequestFor(calibrateUrl, false, "boat_name=" + BOAT_NAME));
         delay(100); 
       }
       buttonPressed = true;
@@ -84,35 +85,6 @@ void loop() {
   // Reset the timer at the end of the loop
   ResetTimer();
 }
-
-// Request data from the server
-int DoRequestFor(String url, bool getOrPost, String content = null) {
-  SetLedsColor(0,0,255);
-    
-  HTTPClient http;
-  http.begin(url); 
-  int httpCode = getOrPost ? http.GET() : http.POST(content);  
-  Serial.println(httpCode);
-
-  if(httpCode > 0) {
-    deserializeJson(json, http.getString());
-
-     // Light green when it went correct, else blink red
-     if(httpCode >= 200 && httpCode < 299){
-        SetLedsColor(0,255,0);
-        GoodReplySound();
-     }
-     else
-        BlinkLightTimes(200, 255, 0, 0, 3);
-  }
-  else 
-    BlinkLightTimes(200, 255, 0, 0, 3);
-
-  http.end();
-
-  return httpCode;
-}
-
 
 // Get the data from the weather request
 void GetWeatherInfo(int httpCode) {
@@ -141,5 +113,5 @@ void CalibrateBoatHere(int httpCode) {
    Serial.println("Calibration Failed");
 
   // Get the weather info again after calibrating
-   GetWeatherInfo(DoRequestFor(weatherUrl));
+   GetWeatherInfo(DoRequestFor(weatherUrl, true));
 }
