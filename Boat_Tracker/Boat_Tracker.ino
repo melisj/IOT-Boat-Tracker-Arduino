@@ -11,6 +11,9 @@
 
 const int secondDelayForWeather = 60;
 
+// Hardcoded boat
+const String BOAT_NAME = "viermineen";
+
 // Button Setup
 #define BUTTON_PIN D1
 bool buttonPressed = false;
@@ -18,6 +21,8 @@ bool buttonPressed = false;
 // Setup the networking side
 const String networkName = "TELE2-A7E7F3_2.4G";
 const String password = "36D49969D4C3";
+//const String networkName = "NokiaPower";
+//const String password = "arduinoenzo";
 
 // Domain main
 const String domainName = "boattracker.duckdns.org";
@@ -44,8 +49,7 @@ void setup() {
   WiFi.begin(networkName, password);
  
   while (WiFi.status() != WL_CONNECTED) {
-     LoopThroughLeds(50, 0, 0, 255);
-     delay(200);
+     LoopThroughLeds(150, 0, 0, 255);
      Serial.println("connecting");
   }
 
@@ -82,12 +86,12 @@ void loop() {
 }
 
 // Request data from the server
-int DoRequestFor(String url) {
+int DoRequestFor(String url, bool getOrPost, String content = null) {
   SetLedsColor(0,0,255);
     
   HTTPClient http;
   http.begin(url); 
-  int httpCode = http.GET(); 
+  int httpCode = getOrPost ? http.GET() : http.POST(content);  
   Serial.println(httpCode);
 
   if(httpCode > 0) {
@@ -101,6 +105,8 @@ int DoRequestFor(String url) {
      else
         BlinkLightTimes(200, 255, 0, 0, 3);
   }
+  else 
+    BlinkLightTimes(200, 255, 0, 0, 3);
 
   http.end();
 
