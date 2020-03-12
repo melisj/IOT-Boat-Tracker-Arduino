@@ -1,7 +1,4 @@
-// The led will display heavy winds, the 2e will display heavy rain, the 3e will turn on when a thunderstorm is coming
-// Hardcoded boat
-const String BOAT_NAME = "viermineen";
-
+// The led will display heavy winds, the 2e will display heavy rain, the 3e will turn on when heavy wind is coming
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
@@ -9,31 +6,11 @@ const String BOAT_NAME = "viermineen";
 
 DynamicJsonDocument json(1024); 
 
+#include "Settings.h"
 #include "Timer.h"
 #include "Sound_Controller.h"
 #include "Led_Controller.h"
 #include "Wifi_Connection.h"
-
-const int secondDelayForWeather = 60;
-
-// Button Setup
-#define BUTTON_PIN D1
-bool buttonPressed = false;
-
-// Setup the networking side
-const String networkName = "TELE2-A7E7F3_2.4G";
-const String password = "36D49969D4C3";
-//const String networkName = "NokiaPower";
-//const String password = "arduinoenzo";
-
-// Domain main
-const String domainName = "boattracker.duckdns.org";
-const String ipBackupName = "[backup ip]"; 
-
-// Connection for the weather API and calibration of the position
-const String weatherUrl = "http://" + domainName + "/arduino/weather?boat_name=" + BOAT_NAME;
-const String calibrateUrl = "http://" + domainName + "/arduino/calibrate";
-
 
 void setup() {
   Serial.begin(9600);
