@@ -1,8 +1,3 @@
-// Setup the led
-#define LED_COUNT 3
-#define LED_PIN D2
-Adafruit_NeoPixel strip(LED_COUNT, LED_PIN);
-
 void SetLedsColor(int r, int g, int b){
   for(int i = 0; i < LED_COUNT; i++) {
      strip.setPixelColor(i, r, g, b);
@@ -19,7 +14,7 @@ void BlinkLight(int delayTime, int r, int g, int b){
 
 void BlinkLightTimes(int delayTime, int r, int g, int b, int amount) {
   for(int i = 0; i < amount; i++) {
-    MakeSound(1, 0.1);
+    MakeSound(NOTE_F, 0.1);
     BlinkLight(delayTime, r, g, b);
   }
 }

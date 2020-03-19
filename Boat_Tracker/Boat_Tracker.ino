@@ -14,6 +14,7 @@ DynamicJsonDocument json(1024);
 
 void setup() {
   Serial.begin(9600);
+  
   // Setup the sound device
   AudioSetup();
 
@@ -21,7 +22,7 @@ void setup() {
   pinMode(BUTTON_PIN, INPUT_PULLUP);  
 
   // Initialize the led strip
-  LedStartUpSequence();
+  //LedStartUpSequence();
 
   // Setup the wifi connection
   WiFi.begin(networkName, password);
@@ -32,7 +33,7 @@ void setup() {
   }
 
   BlinkLight(400, 0, 0, 255);
-  GoodReplySound();
+  PlaySequence(connectionAudio);
 }
 
 void loop() {
@@ -84,7 +85,7 @@ void CalibrateBoatHere(int httpCode) {
 
     // turn of the leds
     delay(500);
-    SetLedsColor(0,0,0);
+    SetLedsColor(0,0,0); 
   }
   else 
    Serial.println("Calibration Failed");

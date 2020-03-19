@@ -14,7 +14,7 @@ int DoRequestFor(String url, bool getOrPost, String content = "") {
      // Light green when it went correct, else blink red
      if(httpCode >= 200 && httpCode < 299){
         SetLedsColor(0,255,0);
-        GoodReplySound();
+        PlaySequence(succesRequest);
      }
      else
         BlinkLightTimes(200, 255, 0, 0, 3);
