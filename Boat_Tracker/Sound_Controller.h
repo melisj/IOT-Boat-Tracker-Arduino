@@ -1,8 +1,6 @@
 void AudioSetup(){
   pinMode(BUZZER_PIN_1, OUTPUT);  
   pinMode(BUZZER_PIN_2, OUTPUT); 
-
-  PlaySequence(introAudio);
 }
 
 void MakeSound(int delayMicroSeconds, float miliseconds){

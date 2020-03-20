@@ -6,12 +6,10 @@ const String BOAT_NAME = "viermineen";
 bool buttonPressed = false;
 
 // Init the network data
-const String networkName = "";
-const String password = "";
-//const String networkName = "TELE2-A7E7F3_2.4G";
-//const String password = "36D49969D4C3";
-const String networkName = "NokiaPower";
-const String password = "arduinoenzo";
+const String networkName = "TELE2-A7E7F3_2.4G";
+const String password = "36D49969D4C3";
+//const String networkName = "NokiaPower";
+//const String password = "arduinoenzo";
 
 // Domain main
 const String domainName = "boattracker.duckdns.org";
@@ -45,9 +43,9 @@ const int asciiValueA = (int)'A';
 const int asciiValueDash= (int)'-';
 
 // Max length of 32 audio tones
-const String introAudio = "[F100/E100/F100/-100/D100/E100/D100/]";
-const String connectionAudio = "[]";
-const String succesRequest = "[]";
+const String introAudio = "[F100/-100/F100/-100/F100/E100/-100/D100/D100/D100/]";
+const String connectionAudio = "[D100/-100/F100/-100/G100/F100/E100/]";
+const String succesRequest = "[D100/E100/-100/D100/-100/-100/B100/]";
 
 class AudioObject {
   public:

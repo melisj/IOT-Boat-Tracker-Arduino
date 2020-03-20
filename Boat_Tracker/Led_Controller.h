@@ -14,7 +14,7 @@ void BlinkLight(int delayTime, int r, int g, int b){
 
 void BlinkLightTimes(int delayTime, int r, int g, int b, int amount) {
   for(int i = 0; i < amount; i++) {
-    MakeSound(NOTE_F, 0.1);
+    MakeSound(NOTE_F, 100);
     BlinkLight(delayTime, r, g, b);
   }
 }

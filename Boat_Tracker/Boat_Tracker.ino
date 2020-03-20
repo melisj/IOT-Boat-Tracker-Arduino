@@ -17,12 +17,13 @@ void setup() {
   
   // Setup the sound device
   AudioSetup();
+  PlaySequence(introAudio);
 
   // Setup all the pins
   pinMode(BUTTON_PIN, INPUT_PULLUP);  
 
   // Initialize the led strip
-  //LedStartUpSequence();
+  LedStartUpSequence();
 
   // Setup the wifi connection
   WiFi.begin(networkName, password);
